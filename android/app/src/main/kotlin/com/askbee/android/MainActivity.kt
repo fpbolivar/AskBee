@@ -1,4 +1,4 @@
-package com.askme.ask_me
+package com.askbee.android
 
 import io.flutter.embedding.android.FlutterActivity
 

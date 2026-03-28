@@ -1,5 +1,5 @@
-name: ask_me
-description: "AskMe - Your friendly AI learning companion"
+name: ask_bee
+description: "AskBee - Your friendly AI learning companion"
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -21,6 +21,12 @@ dependencies:
   # Auth
   google_sign_in: ^6.2.2
   sign_in_with_apple: ^5.0.0
+
+  # Payments
+  purchases_flutter: ^8.0.0
+
+  # Push Notifications
+  firebase_messaging: ^15.2.0
 
   # Speech
   speech_to_text: ^7.0.0

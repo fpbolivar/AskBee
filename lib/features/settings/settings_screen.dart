@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../models/user_model.dart';
 import '../../services/auth_service.dart';
 import '../../services/llm_service.dart';
+import '../../services/purchases_service.dart';
 import '../../core/theme.dart';
 import '../../core/constants.dart';
 
@@ -68,7 +69,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildProfileCard() {
-    final user = context.watch<AskMeUser?>();
+    final user = context.watch<AskBeeUser?>();
     
     return Card(
       child: Padding(
@@ -159,7 +160,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildAgeSelector() {
-    final user = context.watch<AskMeUser?>();
+    final user = context.watch<AskBeeUser?>();
     final currentAge = user?.ageGroup ?? AppConstants.defaultAgeGroup;
 
     return Card(
@@ -249,7 +250,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _updateAgeGroup(String ageGroup) async {
     final authService = context.read<AuthService>();
-    final user = context.read<AskMeUser?>();
+    final user = context.read<AskBeeUser?>();
     if (user == null) return;
 
     await authService.updateUserAgeGroup(user.uid, ageGroup);
@@ -358,7 +359,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildSubscriptionCard() {
-    final user = context.watch<AskMeUser?>();
+    final user = context.watch<AskBeeUser?>();
     
     return Card(
       child: Padding(
@@ -400,7 +401,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 8),
               const Text(
-                'Thank you for supporting AskMe ❤️',
+                'Thank you for supporting AskBee ❤️',
                 style: TextStyle(color: AppTheme.textLight),
               ),
             ] else ...[
@@ -412,11 +413,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // TODO: RevenueCat IAP
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Coming soon! 🎉')),
-                    );
+                  onPressed: () async {
+                    final purchasesService = context.read<PurchasesService>();
+                    final success = await purchasesService.purchasePremium();
+                    if (success && context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Welcome to Premium! 🎉')),
+                      );
+                    } else if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Purchase failed. Please try again.')),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryYellow,
@@ -424,6 +432,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   child: const Text('Upgrade for \$9.99/month'),
                 ),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () async {
+                  final purchasesService = context.read<PurchasesService>();
+                  await purchasesService.restorePurchases();
+                },
+                child: const Text('Restore Purchases'),
               ),
             ],
           ],

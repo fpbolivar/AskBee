@@ -46,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<AskMeUser?>();
+    final user = context.watch<AskBeeUser?>();
     
     return Scaffold(
       body: SafeArea(
@@ -71,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildTopBar(AskMeUser? user) {
+  Widget _buildTopBar(AskBeeUser? user) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
@@ -87,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           
           const Spacer(),
           
-          // AskMe Logo
+          // AskBee Logo
           Row(
             children: [
               Container(
@@ -104,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               ),
               const SizedBox(width: 8),
               const Text(
-                'AskMe',
+                'AskBee',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -143,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildQuestionCounter(AskMeUser user) {
+  Widget _buildQuestionCounter(AskBeeUser user) {
     final remaining = user.isPremium
         ? AppConstants.premiumQuestionsPerMonth - user.monthlyPremiumQuestions
         : AppConstants.freeQuestionsPerWeek - user.weeklyFreeQuestions;
@@ -294,7 +294,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildInputArea(AskMeUser? user) {
+  Widget _buildInputArea(AskBeeUser? user) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -378,7 +378,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Future<void> _startListening(AskMeUser? user) async {
+  Future<void> _startListening(AskBeeUser? user) async {
     if (_isLoading || _isSpeaking) return;
     if (user == null) return;
 
@@ -399,7 +399,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     }
   }
 
-  Future<void> _submitQuestion(AskMeUser? user) async {
+  Future<void> _submitQuestion(AskBeeUser? user) async {
     if (_isLoading) return;
     if (user == null) return;
 
@@ -473,7 +473,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     });
   }
 
-  void _showLimitReachedDialog(AskMeUser user) {
+  void _showLimitReachedDialog(AskBeeUser user) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -518,7 +518,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               child: const Icon(Icons.star, color: AppTheme.textDark),
             ),
             const SizedBox(width: 12),
-            const Text('AskMe Premium'),
+            const Text('AskBee Premium'),
           ],
         ),
         content: Column(

@@ -43,7 +43,7 @@ class LoginScreen extends StatelessWidget {
               
               // App Name
               Text(
-                'AskMe',
+                'AskBee',
                 style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                   color: AppTheme.primaryOrange,
                   fontSize: 48,

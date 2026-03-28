@@ -10,29 +10,29 @@ class AuthService {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Stream<AskMeUser?> get userStream {
+  Stream<AskBeeUser?> get userStream {
     return _auth.authStateChanges().asyncMap((firebaseUser) async {
       if (firebaseUser == null) return null;
       return await _getOrCreateUser(firebaseUser);
     });
   }
 
-  Future<AskMeUser?> get currentUser async {
+  Future<AskBeeUser?> get currentUser async {
     final firebaseUser = _auth.currentUser;
     if (firebaseUser == null) return null;
     return await _getOrCreateUser(firebaseUser);
   }
 
-  Future<AskMeUser> _getOrCreateUser(User firebaseUser) async {
+  Future<AskBeeUser> _getOrCreateUser(User firebaseUser) async {
     final docRef = _firestore.collection(AppConstants.usersCollection).doc(firebaseUser.uid);
     final doc = await docRef.get();
 
     if (doc.exists) {
-      return AskMeUser.fromFirestore(doc);
+      return AskBeeUser.fromFirestore(doc);
     }
 
     // Create new user
-    final newUser = AskMeUser(
+    final newUser = AskBeeUser(
       uid: firebaseUser.uid,
       email: firebaseUser.email,
       displayName: firebaseUser.displayName,
@@ -67,7 +67,7 @@ class AuthService {
     return DateTime(now.year, now.month + 1, 1);
   }
 
-  Future<AskMeUser?> signInWithGoogle() async {
+  Future<AskBeeUser?> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return null;
@@ -86,12 +86,23 @@ class AuthService {
     }
   }
 
-  Future<AskMeUser?> signInWithApple() async {
+  Future<AskBeeUser?> signInWithApple() async {
     try {
-      // Note: Apple Sign In requires additional setup
-      // For now, return null to indicate not implemented
-      // TODO: Add Apple Sign In implementation
-      return null;
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      final oauthCredential = OAuthProvider('apple.com').credential(
+        idToken: appleCredential.identityToken,
+        accessToken: appleCredential.authorizationCode,
+      );
+
+      final UserCredential userCredential =
+          await _auth.signInWithCredential(oauthCredential);
+      return await _getOrCreateUser(userCredential.user!);
     } catch (e) {
       print('Apple sign in error: $e');
       return null;
@@ -123,7 +134,7 @@ class AuthService {
     }
   }
 
-  Future<bool> canAskQuestion(AskMeUser user) async {
+  Future<bool> canAskQuestion(AskBeeUser user) async {
     if (user.isPremium) {
       // Check if monthly limit reached
       _resetMonthlyIfNeeded(user);
@@ -135,7 +146,7 @@ class AuthService {
     }
   }
 
-  void _resetWeeklyIfNeeded(AskMeUser user) {
+  void _resetWeeklyIfNeeded(AskBeeUser user) {
     if (user.weeklyResetDate != null && DateTime.now().isAfter(user.weeklyResetDate!)) {
       // Week has reset - update Firestore
       _firestore.collection(AppConstants.usersCollection).doc(user.uid).update({
@@ -145,7 +156,7 @@ class AuthService {
     }
   }
 
-  void _resetMonthlyIfNeeded(AskMeUser user) {
+  void _resetMonthlyIfNeeded(AskBeeUser user) {
     if (user.monthlyResetDate != null && DateTime.now().isAfter(user.monthlyResetDate!)) {
       _firestore.collection(AppConstants.usersCollection).doc(user.uid).update({
         'monthlyPremiumQuestions': 0,

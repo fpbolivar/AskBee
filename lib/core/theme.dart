@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // AskMe Brand Colors - Disney/Pixar inspired warm palette
+  // AskBee Brand Colors - Disney/Pixar inspired warm palette
   static const Color primaryYellow = Color(0xFFFFD93D);     // Sunny yellow
   static const Color primaryOrange = Color(0xFFFF6B35);    // Warm orange
   static const Color primaryTeal = Color(0xFF4ECDC4);      // Friendly teal

@@ -9,7 +9,7 @@ class AuthWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<AskMeUser?>();
+    final user = context.watch<AskBeeUser?>();
     
     if (user == null) {
       return const LoginScreen();

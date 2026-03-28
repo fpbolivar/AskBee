@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class AskMeUser {
+class AskBeeUser {
   final String uid;
   final String? email;
   final String? displayName;
@@ -14,7 +14,7 @@ class AskMeUser {
   final DateTime? monthlyResetDate;
   final DateTime createdAt;
 
-  AskMeUser({
+  AskBeeUser({
     required this.uid,
     this.email,
     this.displayName,
@@ -29,9 +29,9 @@ class AskMeUser {
     required this.createdAt,
   });
 
-  factory AskMeUser.fromFirestore(DocumentSnapshot doc) {
+  factory AskBeeUser.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    return AskMeUser(
+    return AskBeeUser(
       uid: doc.id,
       email: data['email'],
       displayName: data['displayName'],
@@ -69,7 +69,7 @@ class AskMeUser {
     };
   }
 
-  AskMeUser copyWith({
+  AskBeeUser copyWith({
     String? uid,
     String? email,
     String? displayName,
@@ -83,7 +83,7 @@ class AskMeUser {
     DateTime? monthlyResetDate,
     DateTime? createdAt,
   }) {
-    return AskMeUser(
+    return AskBeeUser(
       uid: uid ?? this.uid,
       email: email ?? this.email,
       displayName: displayName ?? this.displayName,
