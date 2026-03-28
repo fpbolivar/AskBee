@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/user_model.dart';
+import '../../models/message_model.dart';
 import '../../services/auth_service.dart';
 import '../../services/speech_service.dart';
 import '../../services/llm_service.dart';
+import '../../services/chat_storage_service.dart';
 import '../../core/theme.dart';
 import '../../core/constants.dart';
 import '../settings/settings_screen.dart';
@@ -21,6 +23,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   bool _isSpeaking = false;
   final TextEditingController _textController = TextEditingController();
   late AnimationController _micAnimationController;
+  final ChatStorageService _chatStorage = ChatStorageService();
+  String? _currentChatId;
 
   @override
   void initState() {
@@ -35,6 +39,24 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Future<void> _initServices() async {
     final speechService = context.read<SpeechService>();
     await speechService.initialize();
+    
+    // Load chat history
+    final user = context.read<AskBeeUser?>();
+    if (user != null) {
+      _currentChatId = user.uid;
+      final savedMessages = await _chatStorage.loadMessages(uid: user.uid, chatId: _currentChatId!);
+      if (savedMessages.isNotEmpty && mounted) {
+        setState(() {
+          for (final msg in savedMessages) {
+            _messages.add({
+              'text': msg.text,
+              'role': msg.role.name,
+              'timestamp': msg.timestamp,
+            });
+          }
+        });
+      }
+    }
   }
 
   @override
@@ -426,6 +448,20 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     });
     _textController.clear();
 
+    // Persist user message
+    if (_currentChatId != null) {
+      _chatStorage.saveMessage(
+        uid: user.uid,
+        chatId: _currentChatId!,
+        message: ChatMessage(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          text: question,
+          role: MessageRole.user,
+          timestamp: DateTime.now(),
+        ),
+      );
+    }
+
     // Get AI response
     final llmService = context.read<LlmService>();
     final response = await llmService.generateResponse(
@@ -434,13 +470,28 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
 
     // Add assistant message
+    final responseText = response ?? 'Sorry, I couldn\'t generate a response.';
     setState(() {
       _messages.add({
         'role': 'assistant',
-        'text': response ?? 'Sorry, I couldn\'t generate a response.',
+        'text': responseText,
         'isSpeaking': false,
       });
     });
+
+    // Persist assistant message
+    if (_currentChatId != null) {
+      _chatStorage.saveMessage(
+        uid: user.uid,
+        chatId: _currentChatId!,
+        message: ChatMessage(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          text: responseText,
+          role: MessageRole.assistant,
+          timestamp: DateTime.now(),
+        ),
+      );
+    }
 
     // Increment question count
     await authService.incrementQuestionCount(user.uid, isPremium: user.isPremium);
