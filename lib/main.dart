@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'core/theme.dart';
 import 'services/auth_service.dart';
 import 'services/speech_service.dart';
 import 'services/llm_service.dart';
 import 'features/auth/auth_wrapper.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const AskMeApp());
 }
 
