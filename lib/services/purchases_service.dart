@@ -1,15 +1,16 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PurchasesService {
   static const String _premiumKey = 'is_premium';
 
-  // TODO: Replace with your RevenueCat API key
-  static const String _apiKey = 'YOUR_REVENUECAT_API_KEY';
-
   Future<void> initialize() async {
+    final apiKey = dotenv.env['REVENUECAT_API_KEY'] ?? '';
+    if (apiKey.isEmpty) return;
+    
     await Purchases.setLogLevel(LogLevel.debug);
-    await Purchases.configure(PurchasesConfiguration(_apiKey));
+    await Purchases.configure(PurchasesConfiguration(apiKey));
   }
 
   Future<bool> isPremium() async {
