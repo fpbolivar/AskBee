@@ -1,10 +1,9 @@
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import '../core/constants.dart';
 
 class LlmService {
-  // Note: In production, store API key securely (e.g., Firebase Config)
-  // For this demo, using Groq's free tier
   String? _apiKey;
 
   void setApiKey(String apiKey) {
@@ -12,6 +11,9 @@ class LlmService {
   }
 
   Future<String?> generateResponse(String prompt, {String ageGroup = 'Kids (4+)'}) async {
+    // Load from .env if not set
+    _apiKey ??= dotenv.env['GROQ_API_KEY'];
+
     if (_apiKey == null || _apiKey!.isEmpty) {
       return '⚠️ API key not configured. Please add your Groq API key to use the AI assistant.';
     }

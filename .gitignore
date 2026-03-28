@@ -49,3 +49,5 @@ android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
 android/GoogleService-Info.plist
 ios/google-services.json
+GROQ_API_KEY
+.env
